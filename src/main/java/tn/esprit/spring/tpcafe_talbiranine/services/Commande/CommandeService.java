@@ -2,59 +2,79 @@ package tn.esprit.spring.tpcafe_talbiranine.services.Commande;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Commande.CommandeRequest;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Commande.CommandeResponse;
 import tn.esprit.spring.tpcafe_talbiranine.entites.Commande;
+import tn.esprit.spring.tpcafe_talbiranine.mapper.Commande.CommandeMappers;
 import tn.esprit.spring.tpcafe_talbiranine.repositories.CommandeRepository;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor//pour faire communication entre 2
+@AllArgsConstructor
 public class CommandeService implements ICommandeServices {
 
     private final CommandeRepository commandeRepository;
+    private final CommandeMappers commandeMapper;
 
+    // ✅ Ajouter une commande via DTO
     @Override
-    public Commande addCommande(Commande commande) {
-        return commandeRepository.save(commande);
+    public CommandeResponse addCommande(CommandeRequest commandeRequest) {
+        Commande commande = commandeMapper.toEntity(commandeRequest);
+        Commande saved = commandeRepository.save(commande);
+        return commandeMapper.toDto(saved);
     }
 
+    // ✅ Ajouter plusieurs commandes via DTO
     @Override
-    public List<Commande> saveCommandes(List<Commande> commandes) {
-        return commandeRepository.saveAll(commandes);
+    public List<CommandeResponse> saveCommandes(List<CommandeRequest> commandesRequest) {
+        List<Commande> commandes = commandesRequest.stream()
+                .map(commandeMapper::toEntity)
+                .collect(Collectors.toList());
+        List<Commande> saved = commandeRepository.saveAll(commandes);
+        return saved.stream()
+                .map(commandeMapper::toDto)
+                .collect(Collectors.toList());
     }
 
+    // ✅ Récupérer une commande par ID
     @Override
-    public Commande selectCommandeById(long id) {
-        return commandeRepository.findById(id).orElse(null);
+    public CommandeResponse selectCommandeById(long id) {
+        return commandeRepository.findById(id)
+                .map(commandeMapper::toDto)
+                .orElse(null);
     }
 
+    // ✅ Récupérer toutes les commandes
     @Override
-    public Commande selectCommandeByIdWithGet(long id) {
-        return commandeRepository.findById(id).get();
+    public List<CommandeResponse> selectAllCommandes() {
+        return commandeRepository.findAll().stream()
+                .map(commandeMapper::toDto)
+                .collect(Collectors.toList());
     }
 
+    // ✅ Supprimer une commande par ID
     @Override
-    public Commande selectCommandeByIdWithOrElse(long id) {
-        Commande commandeParDefaut = Commande.builder()
-                .totalCommande(0)
-                .build();
-        return commandeRepository.findById(id).orElse(commandeParDefaut);
+    public void deleteCommandeById(long id) {
+        commandeRepository.deleteById(id);
     }
 
+    // ✅ Supprimer toutes les commandes
     @Override
-    public List<Commande> selectAllCommandes() {return commandeRepository.findAll();}
+    public void deleteAllCommandes() {
+        commandeRepository.deleteAll();
+    }
 
+    // ✅ Compter les commandes
     @Override
-    public void deleteCommande(Commande commande) {commandeRepository.delete(commande);}
+    public long countCommandes() {
+        return commandeRepository.count();
+    }
 
+    // ✅ Vérifier si une commande existe
     @Override
-    public void deleteAllCommandes() {commandeRepository.deleteAll();}
-
-    @Override
-    public void deleteCommandeById(long id) {commandeRepository.deleteById(id);}
-
-    @Override
-    public long countCommandes() {return commandeRepository.count();}
-
-    @Override
-    public boolean verifCommandeById(long id) {return commandeRepository.existsById(id);}
+    public boolean verifCommandeById(long id) {
+        return commandeRepository.existsById(id);
+    }
 }

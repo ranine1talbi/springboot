@@ -2,25 +2,42 @@ package tn.esprit.spring.tpcafe_talbiranine.services.Promotion;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Promotion.PromotionRequest;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Promotion.PromotionResponse;
+import tn.esprit.spring.tpcafe_talbiranine.entites.Article;
 import tn.esprit.spring.tpcafe_talbiranine.entites.Promotion;
+import tn.esprit.spring.tpcafe_talbiranine.mapper.Promotion.PromotionMappers;
+import tn.esprit.spring.tpcafe_talbiranine.repositories.ArticleRepository;
 import tn.esprit.spring.tpcafe_talbiranine.repositories.PromotionRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class PromotionService implements IPromotionServices {
 
-    public PromotionRepository promotionRepository;
+    private final PromotionRepository promotionRepository;
+    private final ArticleRepository articleRepository;
+    private final PromotionMappers promotionMappers;
 
-    @Override
-    public Promotion addPromotion(Promotion promotion) {
+    // ✅ Ajouter une promotion avec gestion des articles
+    public Promotion addPromotion(Promotion promotion, List<Long> articleIds) {
+        if (articleIds != null && !articleIds.isEmpty()) {
+            List<Article> articles = articleRepository.findAllById(articleIds);
+            promotion.setArticles(articles);
+        }
         return promotionRepository.save(promotion);
     }
 
-    @Override
+    // ✅ Ajouter plusieurs promotions
     public List<Promotion> savePromotions(List<Promotion> promotions) {
         return promotionRepository.saveAll(promotions);
+    }
+
+    @Override
+    public Promotion selectPromotionById(long id) {
+        return promotionRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -68,8 +85,14 @@ public class PromotionService implements IPromotionServices {
         return promotionRepository.existsById(id);
     }
 
-    @Override
-    public Promotion selectPromotionById(long id) {
-        return promotionRepository.findById(id).orElse(null);
+    // ✅ Récupération via DTO
+    public PromotionResponse recupererPromotionParId(long id) {
+        Promotion promotion = selectPromotionById(id);
+        return (promotion != null) ? promotionMappers.toDto(promotion) : null;
     }
+
+    public List<PromotionResponse> selectAllPromotionsDTO() {
+        return selectAllPromotions().stream().map(promotionMappers::toDto).collect(Collectors.toList());
+    }
+
 }

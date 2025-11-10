@@ -1,29 +1,26 @@
 package tn.esprit.spring.tpcafe_talbiranine.services.Commande;
 
-import tn.esprit.spring.tpcafe_talbiranine.entites.Commande;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Commande.CommandeRequest;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Commande.CommandeResponse;
+
 import java.util.List;
 
 public interface ICommandeServices {
 
-    Commande addCommande(Commande commande);
+    // ✅ CRUD avec DTO
+    CommandeResponse addCommande(CommandeRequest commandeRequest);
+    List<CommandeResponse> saveCommandes(List<CommandeRequest> commandesRequest);
+    CommandeResponse selectCommandeById(long id);
+    List<CommandeResponse> selectAllCommandes();
 
-    List<Commande> saveCommandes(List<Commande> commandes);
-
-    Commande selectCommandeById(long id);
-
-    Commande selectCommandeByIdWithGet(long id);
-
-    Commande selectCommandeByIdWithOrElse(long id);
-
-    List<Commande> selectAllCommandes();
-
-    void deleteCommande(Commande commande);
-
-    void deleteAllCommandes();
-
+    // ✅ Suppression / utils
     void deleteCommandeById(long id);
-
+    void deleteAllCommandes();
     long countCommandes();
-
     boolean verifCommandeById(long id);
+
+    // Optionnel : si tu veux garder les méthodes avec l'entité
+    // void deleteCommande(Commande commande);
+    // Commande selectCommandeByIdWithGet(long id);
+    // Commande selectCommandeByIdWithOrElse(long id);
 }

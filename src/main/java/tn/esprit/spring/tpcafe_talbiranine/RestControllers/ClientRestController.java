@@ -2,7 +2,8 @@ package tn.esprit.spring.tpcafe_talbiranine.RestControllers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.spring.tpcafe_talbiranine.entites.Client;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Client.ClientRequest;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Client.ClientResponse;
 import tn.esprit.spring.tpcafe_talbiranine.services.Client.IClientServices;
 
 import java.util.List;
@@ -16,35 +17,34 @@ public class ClientRestController {
 
     // 🔹 GET : récupérer tous les clients
     @GetMapping
-    public List<Client> selectAllClients() {
+    public List<ClientResponse> selectAllClients() {
         return clientServices.selectAllClients();
     }
 
     // 🔹 POST : ajouter un seul client
     @PostMapping
-    public Client addClient(@RequestBody Client client) {
+    public ClientResponse addClient(@RequestBody ClientRequest client) {
         return clientServices.addClient(client);
     }
 
     // 🔹 POST : ajouter plusieurs clients
     @PostMapping("/all")
-    public List<Client> addClients(@RequestBody List<Client> clients) {
+    public List<ClientResponse> addClients(@RequestBody List<ClientRequest> clients) {
         return clientServices.saveClients(clients);
     }
 
-    // 🔹 GET : récupérer un client par ID (PathVariable)
+    // 🔹 GET : récupérer un client par ID
     @GetMapping("/{id}")
-    public Client selectClientById(@PathVariable long id) {
+    public ClientResponse selectClientById(@PathVariable long id) {
         return clientServices.selectClientById(id);
     }
 
-
-
     // 🔹 DELETE : supprimer un client par ID
-    @DeleteMapping("deleteById/{id}")
+    @DeleteMapping("/{id}")
     public void deleteClientById(@PathVariable long id) {
         clientServices.deleteClientById(id);
     }
+
 
     // 🔹 DELETE : supprimer tous les clients
     @DeleteMapping("deleteAll")

@@ -2,7 +2,8 @@ package tn.esprit.spring.tpcafe_talbiranine.RestControllers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.spring.tpcafe_talbiranine.entites.Commande;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Commande.CommandeRequest;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Commande.CommandeResponse;
 import tn.esprit.spring.tpcafe_talbiranine.services.Commande.ICommandeServices;
 
 import java.util.List;
@@ -16,25 +17,25 @@ public class CommandeRestController {
 
     // 🔹 GET : récupérer toutes les commandes
     @GetMapping
-    public List<Commande> selectAllCommandes() {
+    public List<CommandeResponse> selectAllCommandes() {
         return commandeServices.selectAllCommandes();
     }
 
     // 🔹 POST : ajouter une commande
     @PostMapping
-    public Commande addCommande(@RequestBody Commande commande) {
-        return commandeServices.addCommande(commande);
+    public CommandeResponse addCommande(@RequestBody CommandeRequest commandeRequest) {
+        return commandeServices.addCommande(commandeRequest);
     }
 
     // 🔹 POST : ajouter plusieurs commandes
     @PostMapping("/all")
-    public List<Commande> addCommandes(@RequestBody List<Commande> commandes) {
+    public List<CommandeResponse> addCommandes(@RequestBody List<CommandeRequest> commandes) {
         return commandeServices.saveCommandes(commandes);
     }
 
     // 🔹 GET : récupérer une commande par ID
     @GetMapping("/{id}")
-    public Commande selectCommandeById(@PathVariable long id) {
+    public CommandeResponse selectCommandeById(@PathVariable long id) {
         return commandeServices.selectCommandeById(id);
     }
 

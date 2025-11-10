@@ -2,10 +2,14 @@ package tn.esprit.spring.tpcafe_talbiranine.RestControllers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Promotion.PromotionRequest;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Promotion.PromotionResponse;
 import tn.esprit.spring.tpcafe_talbiranine.entites.Promotion;
+import tn.esprit.spring.tpcafe_talbiranine.mapper.Promotion.PromotionMappers;
 import tn.esprit.spring.tpcafe_talbiranine.services.Promotion.PromotionService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("promotions")
@@ -13,58 +17,55 @@ import java.util.List;
 public class PromotionRestController {
 
     private final PromotionService promotionService;
+    private final PromotionMappers promotionMappers;
 
-    // Add a single promotion
-    @PostMapping("/add")
-    public Promotion addPromotion(@RequestBody Promotion promotion) {
-        return promotionService.addPromotion(promotion);
+    @PostMapping
+    public PromotionResponse addPromotion(@RequestBody PromotionRequest request) {
+        Promotion promotion = promotionMappers.toEntity(request);
+        Promotion saved = promotionService.addPromotion(promotion, request.getArticleIds());
+        return promotionMappers.toDto(saved);
     }
 
-    // Add multiple promotions at once
-    @PostMapping("/addAll")
-    public List<Promotion> addAllPromotions(@RequestBody List<Promotion> promotions) {
-        return promotionService.savePromotions(promotions);
+    @PostMapping("addAll")
+    public List<PromotionResponse> addAllPromotions(@RequestBody List<PromotionRequest> requests) {
+        return requests.stream()
+                .map(req -> promotionMappers.toEntity(req))
+                .map(promo -> promotionService.addPromotion(promo, promo.getArticles().stream().map(a -> a.getIdArticle()).toList()))
+                .map(promo -> promotionMappers.toDto(promo))
+                .collect(Collectors.toList());
     }
 
-    // Get all promotions
-    @GetMapping("/all")
-    public List<Promotion> getAllPromotions() {
-        return promotionService.selectAllPromotions();
+    @GetMapping
+    public List<PromotionResponse> getAllPromotions() {
+        return promotionService.selectAllPromotions()
+                .stream()
+                .map(promotionMappers::toDto)
+                .collect(Collectors.toList());
     }
 
-    // Get a promotion by ID
-    @GetMapping("/{id}")
-    public Promotion getPromotionById(@PathVariable long id) {
-        return promotionService.selectPromotionById(id);
+    @GetMapping("{id}")
+    public PromotionResponse getPromotionById(@PathVariable long id) {
+        Promotion promotion = promotionService.selectPromotionById(id);
+        return promotionMappers.toDto(promotion);
     }
 
-    // Get a promotion by ID with OrElse (default if not found)
-    @GetMapping("/default/{id}")
-    public Promotion getPromotionByIdOrElse(@PathVariable long id) {
-        return promotionService.selectPromotionByIdWithOrElse(id);
-    }
-
-    // Check if a promotion exists by ID
-    @GetMapping("/exists/{id}")
-    public boolean existsById(@PathVariable long id) {
-        return promotionService.verifPromotionById(id);
-    }
-
-    // Delete a promotion by ID
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("deleteById/{id}")
     public void deletePromotionById(@PathVariable long id) {
         promotionService.deletePromotionById(id);
     }
 
-    // Delete all promotions
-    @DeleteMapping("/deleteAll")
+    @DeleteMapping("deleteAll")
     public void deleteAllPromotions() {
         promotionService.deleteAllPromotions();
     }
 
-    // Count total promotions
-    @GetMapping("/count")
+    @GetMapping("count")
     public long countPromotions() {
         return promotionService.countPromotions();
+    }
+
+    @GetMapping("exists/{id}")
+    public boolean existsById(@PathVariable long id) {
+        return promotionService.verifPromotionById(id);
     }
 }

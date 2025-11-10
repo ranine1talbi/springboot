@@ -21,20 +21,19 @@ public class Client {
     private Long idClient;
 
     private String nom;
-
     private String prenom;
-
     private LocalDate dateNaissance;
 
-
-
-    @OneToOne
+    // ✅ Lorsqu’on crée/supprime un client, son adresse est aussi créée/supprimée
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "adresse_id")
     private Adresse adresse;
 
-    @OneToOne(mappedBy = "client")
+    // ✅ Lorsqu’on supprime un client, sa carte fidélité est aussi supprimée
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private CarteFidelite carteFidelite;
 
-    @OneToMany(mappedBy = "client")
+    // ✅ Lorsqu’on supprime un client, ses commandes aussi
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Commande> commandes;
 }

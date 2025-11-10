@@ -2,8 +2,9 @@ package tn.esprit.spring.tpcafe_talbiranine.RestControllers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.spring.tpcafe_talbiranine.entites.Detail_Commande;
-import tn.esprit.spring.tpcafe_talbiranine.services.Detail_Commande.Detail_CommandeService;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Detail_Commande.Detail_CommandeRequest;
+import tn.esprit.spring.tpcafe_talbiranine.dto.Detail_Commande.Detail_CommandeResponse;
+import tn.esprit.spring.tpcafe_talbiranine.services.Detail_Commande.IDetail_CommandeServices;
 
 import java.util.List;
 
@@ -12,45 +13,53 @@ import java.util.List;
 @AllArgsConstructor
 public class Detail_CommandeRestController {
 
-    private final Detail_CommandeService detailCommandeService;
+    private final IDetail_CommandeServices detailCommandeServices;
 
-    @PostMapping("/add")
-    public Detail_Commande addDetailCommande(@RequestBody Detail_Commande detail) {
-        return detailCommandeService.addDetailCommande(detail);
+    // ✅ Récupérer tous les détails commandes
+    @GetMapping
+    public List<Detail_CommandeResponse> selectAllDetailsCommande() {
+        return detailCommandeServices.selectAllDetailsCommande();
     }
 
+    // ✅ Ajouter un détail commande
+    @PostMapping
+    public Detail_CommandeResponse addDetailCommande(@RequestBody Detail_CommandeRequest request) {
+        return detailCommandeServices.addDetailCommande(request);
+    }
+
+    // ✅ Ajouter plusieurs détails commandes
     @PostMapping("/addAll")
-    public List<Detail_Commande> addAllDetailsCommande(@RequestBody List<Detail_Commande> details) {
-        return detailCommandeService.saveDetailsCommande(details);
+    public List<Detail_CommandeResponse> addAllDetailsCommande(@RequestBody List<Detail_CommandeRequest> requests) {
+        return detailCommandeServices.saveDetailsCommande(requests);
     }
 
-    @GetMapping("/all")
-    public List<Detail_Commande> getAllDetailsCommande() {
-        return detailCommandeService.selectAllDetailsCommande();
-    }
-
+    // ✅ Récupérer un détail commande par ID
     @GetMapping("/{id}")
-    public Detail_Commande getDetailCommandeById(@PathVariable long id) {
-        return detailCommandeService.selectDetailCommandeById(id);
+    public Detail_CommandeResponse displayDetailCommandeById(@PathVariable long id) {
+        return detailCommandeServices.recupererDetailCommandeParId(id);
     }
 
+    // ✅ Vérifier si un détail commande existe
     @GetMapping("/exists/{id}")
-    public boolean existsById(@PathVariable long id) {
-        return detailCommandeService.verifDetailCommandeById(id);
+    public boolean verifDetailCommandeById(@PathVariable long id) {
+        return detailCommandeServices.verifDetailCommandeById(id);
     }
 
-    @DeleteMapping("/delete/{id}")
+    // ✅ Supprimer un détail commande par ID
+    @DeleteMapping("/deleteById/{id}")
     public void deleteDetailCommandeById(@PathVariable long id) {
-        detailCommandeService.deleteDetailCommandeById(id);
+        detailCommandeServices.deleteDetailCommandeById(id);
     }
 
+    // ✅ Supprimer tous les détails commandes
     @DeleteMapping("/deleteAll")
     public void deleteAllDetailsCommande() {
-        detailCommandeService.deleteAllDetailsCommande();
+        detailCommandeServices.deleteAllDetailsCommande();
     }
 
+    // ✅ Compter les détails commandes
     @GetMapping("/count")
     public long countDetailsCommande() {
-        return detailCommandeService.countDetailsCommande();
+        return detailCommandeServices.countDetailsCommande();
     }
 }
